@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="手机定位">
+<meta name="format-detection" content="telephone=no"><meta name="color-scheme" content="light dark">
+<title>手机定位</title><style>@@PAGE_CSS@@</style></head>
+<body><main>
+<header><h1>手机定位</h1><span id="session-status" class="session-pill">@@STATUS@@</span></header>
+<div class="session-line"><p id="session-countdown" data-expires="@@EXPIRES@@" role="status"></p><button id="refresh-session" class="text-button" type="button">刷新状态</button></div>
+<p id="saved-target" class="saved">@@SAVED@@</p><div id="feedback" role="status" aria-live="polite">@@NOTICE@@</div>
+<section aria-label="地图选点">
+<form id="place-search" class="searchbar" role="search"><label class="sr-only" for="place-query">地点、地址或纬度经度</label>
+<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+<input id="place-query" placeholder="搜索地点，或粘贴纬度,经度" type="search" enterkeyhint="search" autocomplete="off"><button id="search-submit" type="submit">查找</button></form>
+<div id="search-results" class="search-results" role="status" hidden></div>
+<div class="city-strip" aria-label="快速查看城市"><button type="button" class="chip" id="origin-map">进入时位置</button><button type="button" class="chip" data-place="23.1291,113.2644">广州</button><button type="button" class="chip" data-place="31.2304,121.4737">上海</button><button type="button" class="chip" data-place="39.9042,116.4074">北京</button><button type="button" class="chip" id="saved-map">已保存目标</button></div>
+<div class="map" id="map" role="region" aria-label="选点地图，拖动或轻点选择目标"><div id="vector-map" class="vector-map"></div><div id="tiles" class="tiles"></div>
+<svg class="pin" viewBox="0 0 30 40" aria-hidden="true"><path d="M15 39C12 33 1 23 1 15a14 14 0 1 1 28 0c0 8-11 18-14 24Z" fill="#df443b" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="5" fill="white"/></svg>
+<div class="map-actions"><button type="button" id="zoom-in" aria-label="放大地图">+</button><button type="button" id="zoom-out" aria-label="缩小地图">−</button></div>
+<span class="attribution"><span id="zoom-level"></span> · <a id="map-attribution" href="https://www.amap.com/" target="_blank" rel="noopener">© 高德地图</a></span></div>
+<div class="map-caption"><p id="map-status" role="status">正在加载地图…</p><button type="button" id="pick-center" class="text-button">选中中心</button></div>
+<div class="selection"><div><span class="field-label">准备前往</span><p id="picked" role="status">轻点地图，选一个位置</p></div><button id="favorite-add" type="button" class="icon-button" aria-label="收藏所选位置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></button></div>
+<div id="favorite-editor" hidden><label for="favorite-name">地点名称</label><input id="favorite-name" maxlength="80" placeholder="例如：公司、周末常去"><button type="button" id="favorite-confirm" class="secondary">保存常用地点</button></div></section>
+<section aria-label="常用与最近地点"><div class="section-heading"><h2>常用地点</h2><span class="subtle">仅保存在此手机</span></div><div id="favorites" class="place-list"></div><details><summary>最近选点</summary><div id="recent-places" class="place-list"></div></details></section>
+<details id="origin-details"><summary>进入时的位置<span id="origin-badge">尚未记录</span></summary><p id="origin-info" class="subtle">未开启虚拟目标时，可记录系统提供的位置，作为返回地图的参考。</p>
+<div class="button-row"><button id="origin-record" type="button" class="secondary">记录系统当前位置</button><button id="origin-view" type="button" class="secondary">在地图查看</button></div>
+<p class="subtle">记录不会自动覆盖。系统缓存或虚拟定位可能影响结果，不保证这就是真实位置。保存于 Safari；清除网站数据会删除。</p></details>
+<details><summary>坐标与地图设置</summary><form id="target-form" action="/wloc-settings/save" method="get"><input type="hidden" name="action" value="save"><input type="hidden" name="ui" value="1">
+<div class="row"><label>纬度 · WGS-84<input aria-label="纬度" name="lat" type="text" inputmode="decimal" required placeholder="地图选点自动填写" value="@@LAT@@"></label><label>经度 · WGS-84<input aria-label="经度" name="lon" type="text" inputmode="decimal" required placeholder="地图选点自动填写" value="@@LON@@"></label></div>
+<label>精度（米）<input aria-label="精度" name="acc" type="number" min="1" max="10000" value="@@ACC@@"></label></form>
+<div class="button-row"><button type="button" id="show-coordinates" class="secondary">在地图显示坐标</button><label class="provider-label">底图<select id="map-source" aria-label="地图底图"><option value="amap">高德高清矢量地图</option><option value="gaode">高德地图</option><option value="osm">OpenStreetMap</option></select></label></div><p class="subtle">地图坐标自动转换；手动输入需使用 WGS-84。</p></details>
+<details id="refresh-help"><summary>刷新定位与使用帮助</summary><label class="auto-refresh-option"><input type="checkbox" id="auto-refresh" checked>保存/清除后前往定位服务</label><p>如已自行创建“定位刷新”快捷指令，开启后，保存或清除成功会前往定位服务页；仍需手动关闭、等待、再开启。若没有跳转，可直接点下方“定位刷新”。</p><p>小火箭使用按模板生成的本地配置并保持连接。保存后有效 10 分钟；重新保存重新计时，刷新页面不续期。</p>
+<p>保存或清除后若高德未变化：在设置 → 隐私与安全性 → 定位服务中关闭约 10 秒，再开启，重开高德并点“我的位置”。仍未恢复时，可断开小火箭、重连 Wi-Fi 再核对。</p>
+<p>网页无法自动开关系统定位；请按上述路径进入设置。开关后记得保持定位服务开启。</p>
+<p class="subtle">保存成功仅表示目标已写入，需在高德核对蓝点。到期后停止改写，缓存不保证立即恢复；强 GPS 信号下可能不采用目标。</p></details>
+</main><footer class="action-bar"><div><button type="submit" form="target-form" id="save-target" @@DISABLED@@>保存 · 10 分钟</button><button id="clear-target" class="clear" type="button">清除</button></div><nav class="footer-links" aria-label="定位操作"><a class="text-button" id="shortcut-refresh" href="shortcuts://run-shortcut?name=%E5%AE%9A%E4%BD%8D%E5%88%B7%E6%96%B0">定位刷新</a><button type="button" class="text-button" id="refresh-guide">使用帮助</button></nav></footer>
+<script>window.phoneAMapConfig=@@AMAP_CONFIG@@;</script><script>@@PLACES_JS@@</script><script>@@AMAP_JS@@</script><script>@@MAP_JS@@</script></body></html>
